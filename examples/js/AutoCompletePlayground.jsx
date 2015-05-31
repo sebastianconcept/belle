@@ -8,12 +8,13 @@ export default React.createClass({
   render () {
     return (
       <div>
+
         <h2>AutoComplete</h2>
 
         <Card>
 
           <div style={ { 'marginBottom': '20px' } }>
-            <AutoComplete defaultValue={'testing...'}></AutoComplete>
+            <AutoComplete defaultValue={ 'test' } options={ ['te', 'tes', 'test', 'test1', 'test123'] }></AutoComplete>
           </div>
 
           <div style={ { 'marginBottom': '20px' } }>
@@ -21,7 +22,7 @@ export default React.createClass({
           </div>
 
           <div>
-            <AutoComplete defaultValue={'this is defaultValue'} disabled></AutoComplete>
+            <AutoComplete></AutoComplete>
           </div>
 
         </Card>

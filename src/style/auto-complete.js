@@ -15,6 +15,15 @@ var autoCompleteStyle = {
   },
 
   disabledHoverStyle: {
+  },
+
+  menuStyle: {
+    position: 'absolute',
+    width: '100%'
+  },
+
+  highlightedOption: {
+    backgroundColor: 'gray'
   }
 
 };

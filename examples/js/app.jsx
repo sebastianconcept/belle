@@ -10,6 +10,7 @@ import CardPlayground from './CardPlayground';
 import SelectPlayground from './SelectPlayground';
 import RatingPlayground from './RatingPlayground';
 import TextInputPlayground from './TextInputPlayground';
+import AutoCompletePlayground from './AutoCompletePlayground';
 
 style.button.style = {
   boxSizing: 'border-box',
@@ -54,6 +55,8 @@ class App extends Component {
       <CardPlayground />
 
       <RatingPlayground />
+
+      <AutoCompletePlayground />
 
     </div>;
   }

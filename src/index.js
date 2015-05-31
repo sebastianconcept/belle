@@ -10,6 +10,7 @@ import Select from './components/Select';
 import Separator from './components/Separator';
 import TextInput from './components/TextInput';
 import Rating from './components/Rating';
+import AutoComplete from './components/autocomplete/AutoComplete';
 
 import buttonStyle from './style/button';
 import cardStyle from './style/card';
@@ -18,6 +19,7 @@ import optionStyle from './style/option';
 import selectStyle from './style/select';
 import separatorStyle from './style/separator';
 import textInputStyle from './style/text-input';
+import autoCompleteStyle from './style/auto-complete';
 
 import selectConfig from './config/select';
 
@@ -30,6 +32,7 @@ module.exports = {
   Separator: Separator,
   TextInput: TextInput,
   Rating: Rating,
+  AutoComplete: AutoComplete,
   style: {
     button: buttonStyle,
     card: cardStyle,
@@ -37,7 +40,8 @@ module.exports = {
     option: optionStyle,
     select: selectStyle,
     separator: separatorStyle,
-    textInput: textInputStyle
+    textInput: textInputStyle,
+    autoComplete: autoCompleteStyle
   },
   config: {
     select: selectConfig

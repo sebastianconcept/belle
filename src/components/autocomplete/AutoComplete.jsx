@@ -14,10 +14,10 @@ export default class AutoComplete extends Component {
 
   /*
    TODO:
-   - checking the behavior of auto-complete for arrow keys.
    - styling
    - creating separate option component
    - handling mouse events on options
+   - adding properties for various styles and event callbacks
    */
 
   constructor(properties) {
@@ -25,7 +25,7 @@ export default class AutoComplete extends Component {
     this.state = {
       inputProperties: sanitizeInputProperties(properties),
       options: this._filterOptions(this.props.defaultValue),
-      showOptions: false
+      highlightedOptionIndex: -2
     };
   }
 
@@ -63,7 +63,7 @@ export default class AutoComplete extends Component {
     this.setState({
       inputProperties: sanitizeInputProperties(properties),
       options: this._filterOptions(this.props.defaultValue),
-      showOptions: false
+      highlightedOptionIndex: -2
     });
     updatePseudoClassStyle(this._styleId, properties);
   }
@@ -75,7 +75,7 @@ export default class AutoComplete extends Component {
     const value = event.target.value;
     this.setState({
       options: this._filterOptions(value),
-      showOptions: true
+      highlightedOptionIndex: -1
     });
     if (this.props.onKeyDown) {
       this.props.onKeyDown(event);
@@ -99,6 +99,10 @@ export default class AutoComplete extends Component {
         event.preventDefault();
         this._onEnterOrSpaceKeyDown(event);
       }
+      else if (event.key === 'Escape') {
+        event.preventDefault();
+        this._hideOptions();
+      }
     }
     if (this.props.onKeyDown) {
       this.props.onKeyDown(event);
@@ -109,8 +113,8 @@ export default class AutoComplete extends Component {
    * This callback will be executed when arrow up key is pressed.
    */
   _onArrowUpKeyDown() {
-    if(this.state.showOptions) {
-      const highlightedOptionIndex = this.state.highlightedOptionIndex <= 0 ? this.state.options.length -1 : this.state.highlightedOptionIndex - 1;
+    if(this.state.highlightedOptionIndex > -2) {
+      const highlightedOptionIndex = this.state.highlightedOptionIndex <= 0 ? this.state.options.length - 1 : this.state.highlightedOptionIndex - 1;
       this.setState({
         highlightedOptionIndex: highlightedOptionIndex
       });
@@ -121,28 +125,24 @@ export default class AutoComplete extends Component {
    * This callback will be executed when arrow down key is pressed.
    */
   _onArrowDownKeyDown() {
-    if(!this.state.showOptions) {
-      this.setState({
-        showOptions: true,
-        highlightedOptionIndex: -1
-      });
-    }
-    else {
-      const highlightedOptionIndex = this.state.highlightedOptionIndex === this.state.options.length -1 ? 0 : this.state.highlightedOptionIndex + 1;
-      this.setState({
-        highlightedOptionIndex: highlightedOptionIndex
-      });
-    }
+    const highlightedOptionIndex = this.state.highlightedOptionIndex === this.state.options.length -1 ? 0 : this.state.highlightedOptionIndex + 1;
+    this.setState({
+      highlightedOptionIndex: highlightedOptionIndex
+    });
   }
 
   /**
    * This callback will be executed when enter or space key is pressed.
    */
   _onEnterOrSpaceKeyDown(event) {
+    const value = this.state.options[this.state.highlightedOptionIndex];
     if(this.state.highlightedOptionIndex !== undefined) {
-      event.target.value = this.state.options[this.state.highlightedOptionIndex];
+      event.target.value = value;
     }
-    this._hideOptions();
+    this.setState({
+      options: this._filterOptions(value),
+      highlightedOptionIndex: -2
+    });
   }
 
   /**
@@ -155,16 +155,18 @@ export default class AutoComplete extends Component {
     }
   }
 
+  /**
+   * This function will hide the options.
+   */
   _hideOptions() {
     this.setState({
-      showOptions: false,
-      highlightedOptionIndex: undefined
+      highlightedOptionIndex: -2
     });
   }
 
   render() {
 
-    const computedMenuStyle = this.state.showOptions && !this.props.disabled ? style.menuStyle : { display: 'none' };
+    const computedMenuStyle = this.state.highlightedOptionIndex > -2 && !this.props.disabled ? style.menuStyle : { display: 'none' };
 
     return <span>
             <input onChange={ this._onChange.bind(this) }

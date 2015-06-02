@@ -19,6 +19,7 @@ import optionStyle from './style/option';
 import selectStyle from './style/select';
 import separatorStyle from './style/separator';
 import textInputStyle from './style/text-input';
+import ratingStyle from './style/rating';
 import autoCompleteStyle from './style/auto-complete';
 
 import selectConfig from './config/select';
@@ -41,6 +42,7 @@ module.exports = {
     select: selectStyle,
     separator: separatorStyle,
     textInput: textInputStyle,
+    ratingStyle: ratingStyle,
     autoComplete: autoCompleteStyle
   },
   config: {

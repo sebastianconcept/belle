@@ -5,6 +5,8 @@ import {injectStyles, removeStyle} from '../../utils/inject-style';
 import unionClassNames from '../../utils/union-class-names';
 import {omit, extend, filter} from 'underscore';
 import style from '../../style/auto-complete';
+import textInputStyle from '../../style/text-input';
+import Option from '../Option'
 
 /**
  * AutoComplete React Component.
@@ -14,17 +16,19 @@ export default class AutoComplete extends Component {
 
   /*
    TODO:
-   - styling
    - creating separate option component
-   - handling mouse events on options
+   - styling
    - adding properties for various styles and event callbacks
+   - adding touch support
+   - hide focus style when active
+   - I have copied styling from TextInput - how about using components: TextInput, Option as it is here
    */
 
   constructor(properties) {
     super(properties);
     this.state = {
       inputProperties: sanitizeInputProperties(properties),
-      options: this._filterOptions(this.props.defaultValue),
+      options: this.props.options,
       highlightedOptionIndex: -2
     };
   }
@@ -35,7 +39,7 @@ export default class AutoComplete extends Component {
    */
   _filterOptions(value) {
     return filter(this.props.options, function(option) {
-      return (option.indexOf(value) === 0);
+      return (option.indexOf(value) === 0 && option !== value);
     })
   }
 
@@ -140,7 +144,6 @@ export default class AutoComplete extends Component {
       event.target.value = value;
     }
     this.setState({
-      options: this._filterOptions(value),
       highlightedOptionIndex: -2
     });
   }
@@ -164,25 +167,53 @@ export default class AutoComplete extends Component {
     });
   }
 
+  _optionOnMouseOver(index) {
+    this.setState({
+      highlightedOptionIndex: index
+    });
+  }
+
+  _optionOnMouseDown() {
+    const value = this.state.options[this.state.highlightedOptionIndex];
+    const autoCompleteInput = React.findDOMNode(this.refs.autoCompleteInput);
+    autoCompleteInput.value = value;
+    this.setState({
+      highlightedOptionIndex: -2
+    });
+  }
+
+  _menuOnMouseLeave() {
+    this.setState({
+      highlightedOptionIndex: -1
+    });
+  }
+
   render() {
 
     const computedMenuStyle = this.state.highlightedOptionIndex > -2 && !this.props.disabled ? style.menuStyle : { display: 'none' };
 
     return <span>
-            <input onChange={ this._onChange.bind(this) }
-                   onBlur = { this._onBlur.bind(this) }
-                   onKeyDown = { this._onKeyDown.bind(this) }
-                   { ...this.state.inputProperties }></input>
-            <ul style={ computedMenuStyle }>
-              {
-                React.Children.map(this.state.options, (entry, index) => {
-                  const computedOptionsStyle = this.state.highlightedOptionIndex === index ? style.highlightedOption : {};
-                  return (
-                    <li style={ computedOptionsStyle }> {entry} </li>
-                  );
-                })
-              }
-            </ul>
+              <input ref="autoCompleteInput"
+                     style={textInputStyle.style}
+                     onChange={ this._onChange.bind(this) }
+                     onBlur = { this._onBlur.bind(this) }
+                     onKeyDown = { this._onKeyDown.bind(this) }
+                     { ...this.state.inputProperties }></input>
+              <ul style={ computedMenuStyle }
+                  onMouseLeave= { this._menuOnMouseLeave.bind(this) }>
+                  {
+                    React.Children.map(this.state.options, (entry, index) => {
+                      const computedOptionsStyle = this.state.highlightedOptionIndex === index ? style.highlightedOption : {};
+                      return (
+                        <li style={ computedOptionsStyle }
+                            onMouseOver= { this._optionOnMouseOver.bind(this, index) }
+                            onMouseDown= { this._optionOnMouseDown.bind(this)}>
+                          {entry}
+                        </li>
+                      );
+                    })
+                  }
+              </ul>
            </span>;
   }
 }

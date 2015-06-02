@@ -6,7 +6,6 @@ import unionClassNames from '../../utils/union-class-names';
 import {omit, extend, filter} from 'underscore';
 import style from '../../style/auto-complete';
 import textInputStyle from '../../style/text-input';
-import Option from '../Option'
 
 /**
  * AutoComplete React Component.
@@ -16,10 +15,10 @@ export default class AutoComplete extends Component {
 
   /*
    TODO:
+   - adding touch support
    - creating separate option component
    - styling
    - adding properties for various styles and event callbacks
-   - adding touch support
    - hide focus style when active
    - I have copied styling from TextInput - how about using components: TextInput, Option as it is here
    */
@@ -167,7 +166,7 @@ export default class AutoComplete extends Component {
     });
   }
 
-  _optionOnMouseOver(index) {
+  _optionOnMouseEnter(index) {
     this.setState({
       highlightedOptionIndex: index
     });
@@ -183,9 +182,45 @@ export default class AutoComplete extends Component {
   }
 
   _menuOnMouseLeave() {
+    if(this.state.highlightedOptionIndex > -1) {
+      this.setState({
+        highlightedOptionIndex: -1
+      });
+    }
+  }
+
+  _optionOnTouchStart(index) {
+    const menuNode = React.findDOMNode(this.refs.menu);
+    if (menuNode.scrollHeight > menuNode.offsetHeight) {
+      this._scrollTopPosition = menuNode.scrollTop;
+    } else {
+      this._scrollTopPosition = 0;
+    }
+    this._scrollActive = false;
     this.setState({
-      highlightedOptionIndex: -1
+      highlightedOptionIndex: index
     });
+  }
+
+  /**
+   * Identifies if the menu is scrollable.
+   */
+  _optionOnTouchMoveAtOption (event) {
+    const menuNode = React.findDOMNode(this.refs.menu);
+    if (menuNode.scrollTop !== this._scrollTopPosition) {
+      this._scrollActive = true;
+    }
+  }
+
+  /**
+   * Triggers a change event after the user touched on an Option.
+   */
+  _onTouchEndAtOption (event, index) {
+    if (event.touches.length === 1 && !this._scrollActive) {
+        event.preventDefault();
+        //this._triggerChange(value);
+    }
+    this._touchStartedAt = undefined;
   }
 
   render() {
@@ -199,14 +234,17 @@ export default class AutoComplete extends Component {
                      onBlur = { this._onBlur.bind(this) }
                      onKeyDown = { this._onKeyDown.bind(this) }
                      { ...this.state.inputProperties }></input>
-              <ul style={ computedMenuStyle }
+              <ul ref="menu"
+                  style={ computedMenuStyle }
                   onMouseLeave= { this._menuOnMouseLeave.bind(this) }>
                   {
                     React.Children.map(this.state.options, (entry, index) => {
                       const computedOptionsStyle = this.state.highlightedOptionIndex === index ? style.highlightedOption : {};
                       return (
-                        <li style={ computedOptionsStyle }
-                            onMouseOver= { this._optionOnMouseOver.bind(this, index) }
+                        <li value={ this.state.option[index] }
+                            style={ computedOptionsStyle }
+                            onMouseEnter= { this._optionOnMouseEnter.bind(this, index) }
+                            onTouchStart= { this._optionOnTouchStart.bind(this, index) }
                             onMouseDown= { this._optionOnMouseDown.bind(this)}>
                           {entry}
                         </li>
